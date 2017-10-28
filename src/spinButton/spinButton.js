@@ -1,7 +1,8 @@
 import dom from "../dom";
 
 class SpinButton {
-	constructor() {
+	constructor(eventEmitter) {
+		this.eventEmitter = eventEmitter;
 		this.root = dom.root;
 		this.spinButton = document.createElement("button");
 		this.spinButtonIcon = document.createElement("i");

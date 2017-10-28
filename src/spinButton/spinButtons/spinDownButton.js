@@ -1,8 +1,8 @@
 import SpinButton from "../spinButton";
 
 class SpinDownButton extends SpinButton {
-	constructor() {
-		super();
+	constructor(eventEmitter) {
+		super(eventEmitter);
 
 		this.init();
 	}
@@ -18,6 +18,11 @@ class SpinDownButton extends SpinButton {
 
 	render() {
 		super.render();
+		this.addListener();
+	}
+
+	addListener() {
+		this.spinButton.addEventListener("click", this.eventEmitter.numberDown.bind(this.eventEmitter));
 	}
 }
 
