@@ -1,6 +1,8 @@
+import dom from "../dom";
+
 class SpinButton {
 	constructor() {
-		this.root = document.getElementById("root");
+		this.root = dom.root;
 		this.spinButton = document.createElement("button");
 		this.spinButtonIcon = document.createElement("i");
 
