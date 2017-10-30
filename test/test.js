@@ -1,18 +1,32 @@
 import assert from "assert";
+import NumberInput from "../src/numberInput/numberInput";
 
-// 각 it에 spinbox의 함수이름 넣을 예정.
 describe("증가/감소 버튼 기능", () => {
-	it("증가버튼 클릭시, +1", () => {
-		assert.equal(0, [1, 2, 3].indexOf(5));
-		it("최대치 300", () => {
+	const numberInput = new NumberInput(undefined, {"type": "text", "value": 250});
 
-		});
+	// before(() => {
+	// 	numberInput = new NumberInput(undefined, {"type": "text", "value": 250});
+	// });
+
+	it("증가버튼 클릭시, +1", () => {
+		const beforeValue = numberInput.numberInput.value;
+
+		numberInput.number();
+		const afterValue = numberInput.numberInput.value;
+
+		assert.equal(beforeValue + 1, afterValue);
+	});
+
+	it("최대치 300", () => {
+
 	});
 
 	it("감소버튼 클릭시, -1", () => {
-		it("최소치 100", () => {
 
-		});
+	});
+
+	it("최소치 100", () => {
+
 	});
 
 	it("계속 누르고 있을시, 최초에 누른 시점에 0.5초 후부터 0.1초마다 1씩 증감", () => {
