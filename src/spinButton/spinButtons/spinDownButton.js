@@ -1,19 +1,14 @@
 import SpinButton from "../spinButton";
 
 class SpinDownButton extends SpinButton {
-	constructor(eventEmitter) {
-		super(eventEmitter);
+	constructor(eventEmitter, attributeObj) {
+		super(eventEmitter, attributeObj);
 
-		this.init();
+		this.iconize();
 	}
 
-	init() {
-		this.addClassProperty();
-	}
-
-	addClassProperty() {
-		this.spinButton.classList.add("button", "number-down-btn");
-		this.spinButtonIcon.classList.add("fa", "fa-caret-down");
+	iconize() {
+		super.iconize("fa fa-caret-down");
 	}
 
 	render() {

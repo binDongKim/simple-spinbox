@@ -1,21 +1,20 @@
 import dom from "../dom";
 
 class NumberInput {
-	constructor(eventEmitter) {
+	constructor(eventEmitter, attributeObj) {
 		this.eventEmitter = eventEmitter;
 		this.root = dom.root;
 		this.numberInput = document.createElement("input");
+		this.attributeObj = attributeObj;
 
-		this.setProperties();
+		this.init();
 		this.attachEventEmitter();
 	}
 
-	setProperties() {
-		this.numberInput.setAttribute("type", "text");
-		this.numberInput.setAttribute("name", "numberInput");
-		this.numberInput.setAttribute("value", 200);
-		this.numberInput.setAttribute("class", "number-input");
-		this.numberInput.setAttribute("id", "numberInput");
+	init() {
+		for (const attr in this.attributeObj) {
+			this.numberInput.setAttribute(attr, this.attributeObj[attr]);
+		}
 	}
 
 	attachEventEmitter() {

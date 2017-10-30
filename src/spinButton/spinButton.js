@@ -1,36 +1,28 @@
 import dom from "../dom";
 
 class SpinButton {
-	constructor(eventEmitter) {
+	constructor(eventEmitter, attributeObj) {
 		this.eventEmitter = eventEmitter;
 		this.root = dom.root;
 		this.spinButton = document.createElement("button");
-		this.spinButtonIcon = document.createElement("i");
+		this.attributeObj = attributeObj;
 
-		// this.init();
+		this.init();
 	}
 
-	// init() {
-	// 	this.addClassProperty();
-	// }
-	//
-	// addClassProperty() {
-	// 	this.spinButton.classList.add("button");
-	// 	this.spinButtonIcon.classList.add("fa");
-	//
-	// 	console.log(this.spinButton);
-	// 	console.log(this.spinButtonIcon);
-	// 	// if (buttonType === "numberUp") {
-	// 	// 	spinButtonClassList.add("number-up-btn");
-	// 	// 	spinButtonIconClassList.add("fa-caret-up");
-	// 	// } else {
-	// 	// 	spinButtonClassList.add("number-down-btn");
-	// 	// 	spinButtonIconClassList.add("fa-caret-down");
-	// 	// }
-	// }
+	init() {
+		for (const attr in this.attributeObj) {
+			this.spinButton.setAttribute(attr, this.attributeObj[attr]);
+		}
+	}
+
+	iconize(iconClass) {
+		this.spinButtonIcon = document.createElement("i");
+		this.spinButtonIcon.className = iconClass;
+		this.spinButton.appendChild(this.spinButtonIcon);
+	}
 
 	render() {
-		this.spinButton.appendChild(this.spinButtonIcon);
 		this.root.appendChild(this.spinButton);
 	}
 }
