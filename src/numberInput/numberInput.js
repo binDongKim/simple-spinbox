@@ -49,11 +49,14 @@ class NumberInput {
 	}
 
 	validate() {
-		// 1. 숫자는 100-300 범위안에 있어야한다. 범위를 벗어났을땐 최소 100, 최대 300으로 autoreplace
-		const number = Number(this.numberInput.value);
+		// 1. 사용자가 입력한 String에서 Number만 추출한다.
+		const number = Number(this.numberInput.value.replace(/\D/g, ""));
 
+		// 2. 그 숫자는 100-300 범위안에 있어야한다. 범위를 벗어났을땐 최소 100, 최대 300으로 autoreplace.
 		if (number < 100 || number > 300) {
 			this.numberInput.value = number < 100 ? 100 : 300;
+		} else {
+			this.numberInput.value = number;
 		}
 	}
 }
