@@ -29,13 +29,17 @@ class NumberInput {
 	numberUp() {
 		const number = Number(this.numberInput.value);
 
-		this.numberInput.value = number + 1;
+		if (number < 300) {
+			this.numberInput.value = number + 1;
+		}
 	}
 
 	numberDown() {
 		const number = Number(this.numberInput.value);
 
-		this.numberInput.value = number - 1;
+		if (number > 100) {
+			this.numberInput.value = number - 1;
+		}
 	}
 }
 
