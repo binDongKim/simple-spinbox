@@ -21,6 +21,10 @@ class NumberInput {
 		this.eventEmitter.on("NUMBER_UP", this.numberUp.bind(this));
 		this.eventEmitter.on("NUMBER_DOWN", this.numberDown.bind(this));
 		this.eventEmitter.on("VALIDATE", this.validate.bind(this));
+		this.eventEmitter.on("RELEASE_UPBUTTON", this.stopNumberUp.bind(this));
+		this.eventEmitter.on("KEEP_NUMBER_UP", this.keepNumberUp.bind(this));
+		this.eventEmitter.on("RELEASE_DOWNBUTTON", this.stopNumberDown.bind(this));
+		this.eventEmitter.on("KEEP_NUMBER_DOWN", this.keepNumberDown.bind(this));
 	}
 
 	render() {
@@ -30,6 +34,28 @@ class NumberInput {
 
 	addListener() {
 		this.numberInput.addEventListener("blur", this.eventEmitter.validate.bind(this.eventEmitter));
+	}
+
+	keepNumberUp() {
+		this.intervalId = setInterval(this.numberUp, 100);
+	}
+
+	stopNumberUp() {
+		if (this.intervalId) {
+			clearInterval(this.intervalId);
+			this.intervalId = null;
+		}
+	}
+
+	keepNumberDown() {
+		this.intervalId = setInterval(this.numberDown, 100);
+	}
+
+	stopNumberDown() {
+		if (this.intervalId) {
+			clearInterval(this.intervalId);
+			this.intervalId = null;
+		}
 	}
 
 	numberUp() {
