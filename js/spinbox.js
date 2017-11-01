@@ -4,6 +4,7 @@
 const numberInput = document.getElementById("numberInput");
 const numberUpBtn = document.getElementById("numberUpBtn");
 const numberDownBtn = document.getElementById("numberDownBtn");
+const errorTextContainer = document.getElementById("errorText");
 
 /**
  * Constants
@@ -32,11 +33,11 @@ function numberUp(input) {
 		if (inputValue === MAX_VALUE) {
 			throw new Error(`증가 최대치는 ${MAX_VALUE}입니다.`);
 		} else {
+			errorTextContainer.textContent = "";
 			input.value = inputValue + 1;
 		}
 	} catch (e) {
-		// Error Handling.
-		console.log(e.message);
+		errorTextContainer.textContent = e.message;
 	}
 }
 
@@ -48,11 +49,11 @@ function numberDown(input) {
 		if (inputValue === MIN_VALUE) {
 			throw new Error(`감소 최소치는 ${MIN_VALUE}입니다.`);
 		} else {
+			errorTextContainer.textContent = "";
 			input.value = inputValue - 1;
 		}
 	} catch (e) {
-		// Error Handling.
-		console.log(e.message);
+		errorTextContainer.textContent = e.message;
 	}
 }
 
