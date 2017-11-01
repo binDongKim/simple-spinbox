@@ -20,7 +20,7 @@ const SPIN_INTERVAL = 100; // millisecond
 let holdStarter = null;
 let holdActive = false;
 let spinIntervalId = null;
-
+let activeButtonType = null;
 /**
  * Event Handlers
  */
@@ -94,6 +94,7 @@ function keepSpinning(buttonType, input) {
 function isHold(event, input) {
 	const buttonType = event.currentTarget.dataset.buttonType;
 
+	activeButtonType = buttonType;
 	holdStarter = null;
 	holdStarter = setTimeout(() => {
 		// 계속 누르고 있는 상태.
@@ -104,8 +105,8 @@ function isHold(event, input) {
 }
 
 // 버튼에서 mouseup하는 순간에 꾹누르고있었는지, 바로뗐는지(클릭) 판단해서, 클릭했으면 클릭수행. 쭉 누른상태였으면 이미 수행된 keepSpinning interval만 release.
-function releaseButton(event, input) {
-	const buttonType = event.currentTarget.dataset.buttonType;
+function releaseButton(input) {
+	const buttonType = activeButtonType;
 
 	if (holdStarter) {
 		// HOLD_DELAY보다 빨리 뗐을때(클릭)
@@ -136,9 +137,11 @@ numberUpBtn.addEventListener("mousedown", e => {
 numberDownBtn.addEventListener("mousedown", e => {
 	isHold(e, numberInput);
 });
-numberUpBtn.addEventListener("mouseup", e => {
-	releaseButton(e, numberInput);
-});
-numberDownBtn.addEventListener("mouseup", e => {
-	releaseButton(e, numberInput);
-});
+// numberUpBtn.addEventListener("mouseup", e => {
+// 	releaseButton(e, numberInput);
+// });
+// numberDownBtn.addEventListener("mouseup", e => {
+// 	releaseButton(e, numberInput);
+// });
+
+document.addEventListener("mouseup", releaseButton.bind(null, numberInput));
