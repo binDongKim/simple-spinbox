@@ -48,8 +48,9 @@ const spinboxBuildFuncs = (() => {
 	};
 })();
 
+const root = document.getElementById("root");
+
 function Spinbox() {
-	this.root = document.getElementById("root");
 	this.numberInput = spinboxBuildFuncs.buildNumberInput();
 	this.numberUpButton = spinboxBuildFuncs.buildNumberUpButton();
 	this.numberDownButton = spinboxBuildFuncs.buildNumberDownButton();
@@ -67,9 +68,21 @@ Spinbox.prototype.init = function() {
 	spinboxWrapper.appendChild(inputWrapper);
 	spinboxWrapper.appendChild(buttonWrapper);
 
-	this.root.appendChild(spinboxWrapper);
+	root.appendChild(spinboxWrapper);
+};
+
+Spinbox.prototype.leaveNumberOnly = function(e) {
+	const targetElement = e.target;
+
+	if (targetElement.className === "number-input") {
+		const number = Number(targetElement.value.replace(/\D/g, ""));
+
+		targetElement.value = number;
+	}
 };
 
 const spinbox = new Spinbox();
 
 spinbox.init();
+
+root.addEventListener("blur", spinbox.leaveNumberOnly, true);
