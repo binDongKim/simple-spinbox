@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mocha Tests</title>
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css">
+	<script src="https://use.fontawesome.com/af9edb30db.js"></script>
+  </head>
+  <body>
+    <div id="mocha"></div>
+	<div class="container" style="display:none;">
+		<input type="text" name="numberInput" value="200" class="number-input" id="numberInput" />
+		<button class="button number-up-btn" id="numberUpBtn"><i class="fa fa-caret-up"></i></button>
+		<button class="button number-down-btn" id="numberDownBtn"><i class="fa fa-caret-down"></i></button>
+	</div>
+	<script src="../js/spinbox.js"></script>
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/chai/chai.js"></script>
+    <script>mocha.setup('bdd')</script>
+
+    <!-- load code you want to test here -->
+	<script>
+		describe("Spinbox Test Cases", () => {
+			describe("증가/감소 버튼 기능", () => {
+				let input;
+
+				beforeEach(() => {
+					input = document.createElement("input");
+				});
+
+				it("증가버튼 클릭시 +1", () => {
+					const inputValue = input.value = 200;
+
+					numberUp(input);
+					chai.assert.strictEqual(Number(input.value), Number(inputValue) + 1);
+				});
+
+				it('증가 최대치는 300', () => {
+					const inputValue = input.value = MAX_VALUE;
+
+					numberUp(input);
+					chai.assert.strictEqual(Number(input.value), Number(inputValue));
+				});
+
+				it("감소버튼 클릭시 -1", () => {
+					const inputValue = input.value = 200;
+
+					numberDown(input);
+					chai.assert.strictEqual(Number(input.value), Number(inputValue) - 1);
+				});
+
+				it("감소 최소치는 100", () => {
+					const inputValue = input.value = MIN_VALUE;
+
+					numberDown(input);
+					chai.assert.strictEqual(Number(input.value), Number(inputValue));
+				});
+				
+			});
+
+			describe("사용자 숫자 입력 기능", () => {
+				let input;
+
+				beforeEach(() => {
+					input = document.createElement("input");
+				});
+
+				it("사용자가 값을 입력한 후 blur시 숫자 외 글자는 모두 지워짐", () => {
+					const inputValue = input.value = "a1b2c3";
+
+					leaveNumberOnly(input);
+					chai.assert.strictEqual(Number(input.value), Number(inputValue.replace(/\D/g, "")));
+				});
+
+				it("사용자가 입력한 숫자가 100~300 범위를 벗어나면, blur시 100미만은 100으로, 300초과는 300으로 설정", () => {
+					const smallerThanMin = MIN_VALUE - 1;
+					const biggerThanMax = MAX_VALUE + 1;
+					const userValueList = [smallerThanMin, 150, biggerThanMax];
+
+					for (let i = 0, length = userValueList.length; i < length; i++) {
+						input.value = userValueList[i];
+
+						setNumberIntoBoundary(input);
+						chai.assert.isTrue(input.value >= MIN_VALUE && input.value <= MAX_VALUE);
+					}
+				});
+			});
+		});
+	</script>
+    <script>
+      mocha.run();
+    </script>
+  </body>
+</html>
