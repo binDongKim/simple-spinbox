@@ -8,9 +8,19 @@
   <body>
     <div id="mocha"></div>
 	<div class="container" style="display:none;">
-		<input type="text" name="numberInput" value="200" class="number-input" id="numberInput" />
-		<button class="button number-up-btn" id="numberUpBtn"><i class="fa fa-caret-up"></i></button>
-		<button class="button number-down-btn" id="numberDownBtn"><i class="fa fa-caret-down"></i></button>
+		<div class="spinbox">
+			<div class="spinbox-input-wrapper">
+				<input type="text" name="numberInput" value="200" class="number-input" id="numberInput" />
+			</div>
+			<div class="spinbox-btn-wrapper">
+				<button class="button spinbox-btn number-up-btn" id="numberUpBtn" data-button-type="up"><i class="fa fa-caret-up fa-3x"></i></button>
+				<button class="button spinbox-btn number-down-btn" id="numberDownBtn" data-button-type="down"><i class="fa fa-caret-down fa-3x"></i></button>
+			</div>
+			<div class="error-text-wrapper">
+				<p class="error-text" id="errorText">
+				</p>
+			</div>
+		</div>
 	</div>
 	<script src="../js/spinbox.js"></script>
     <script src="../node_modules/mocha/mocha.js"></script>
@@ -54,7 +64,7 @@
 					numberDown(input);
 					chai.assert.strictEqual(Number(input.value), Number(inputValue));
 				});
-				
+
 			});
 
 			describe("사용자 숫자 입력 기능", () => {
