@@ -16,7 +16,7 @@ div, p {
 	align-items: center;
 }
 
-.spinbox {
+.spinbox-wrapper {
 	display: flex;
 }
 
