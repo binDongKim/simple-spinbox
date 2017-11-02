@@ -82,8 +82,9 @@ Spinbox.prototype.init = function() {
 Spinbox.prototype.addListeners = function() {
 	this.numberInput.addEventListener("blur", this.leaveNumberOnly);
 	this.numberInput.addEventListener("blur", this.setNumberIntoBoundary.bind(this));
-	this.numberUpButton.addEventListener("mousedown", this.isHold.bind(this));
-	this.numberDownButton.addEventListener("mousedown", this.isHold.bind(this));
+	// this.numberUpButton.addEventListener("mousedown", this.isHold.bind(this));
+	// this.numberDownButton.addEventListener("mousedown", this.isHold.bind(this));
+	document.addEventListener("mousedown", this.isHold.bind(this));
 	document.addEventListener("mouseup", this.stopSpinning.bind(this));
 };
 
@@ -110,28 +111,36 @@ Spinbox.prototype.setNumberIntoBoundary = function(e) {
 };
 
 Spinbox.prototype.isHold = function(e) {
-	const buttonType = e.currentTarget.dataset.buttonType;
+	const clickedButton = e.path.filter(node => node.nodeName === "BUTTON");
 
-	this.holdStarter = null;
-	this.activeButtonType = buttonType;
-	this.holdStarter = setTimeout(() => {
-		// 계속 누르고 있는 상태.
-		this.keepSpinning(buttonType);
+	if (clickedButton.length > 0) {
+		const buttonType = clickedButton[0].dataset.buttonType;
+
 		this.holdStarter = null;
-		this.holdActive = true;
-	}, this.getHoldDelay());
+		this.activeButtonType = buttonType;
+		this.holdStarter = setTimeout(() => {
+			// 계속 누르고 있는 상태.
+			this.keepSpinning(buttonType);
+			this.holdStarter = null;
+			this.holdActive = true;
+		}, this.getHoldDelay());
+	} else {
+		this.activeButtonType = null;
+	}
 };
 
-Spinbox.prototype.stopSpinning = function() {
+Spinbox.prototype.stopSpinning = function(e) {
 	const buttonType = this.activeButtonType;
 
-	if (this.holdStarter) {
-		// this.holdDelay보다 빨리 뗐을때(클릭)
-		clearTimeout(this.holdStarter);
-		this.spin(buttonType);
-	} else if (this.holdActive) {
-		clearInterval(this.spinIntervalId);
-		this.holdActive = false;
+	if (buttonType) {
+		if (this.holdStarter) {
+			// holdDelay보다 빨리 뗐을때(클릭)
+			clearTimeout(this.holdStarter);
+			this.spin(buttonType);
+		} else if (this.holdActive) {
+			clearInterval(this.spinIntervalId);
+			this.holdActive = false;
+		}
 	}
 };
 
