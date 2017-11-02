@@ -1,132 +1,180 @@
-/**
- * DOM nodes
- */
-const numberInput = document.getElementById("numberInput");
-const numberUpBtn = document.getElementById("numberUpBtn");
-const numberDownBtn = document.getElementById("numberDownBtn");
+const root = document.getElementById("root");
 const errorTextContainer = document.getElementById("errorText");
 
-/**
- * Constants
- */
-const MIN_VALUE = 100;
-const MAX_VALUE = 300;
-const HOLD_DELAY = 500; // millisecond
-const SPIN_INTERVAL = 100; // millisecond
+function getWrapperAround(className) {
+	const wrapper = document.createElement("div");
 
-/**
- * Holding Flag variables
- */
-let holdStarter = null;
-let holdActive = false;
-let spinIntervalId = null;
-let activeButtonType = null;
-/**
- * Event Handlers
- */
+	wrapper.className = className;
+	return wrapper;
+}
 
-// 증가버튼 클릭시 +1, 최대치는 MAX_VALUE.
-function numberUp() {
-	try {
-		const inputValue = Number(numberInput.value);
+function Spinbox({minValue = 100, maxValue = 300, holdDelay = 500, spinInterval = 100} = {}) {
+	const spinboxBuildFuncs = {
+		buildNumberInput: () => {
+			const input = document.createElement("input");
 
-		if (inputValue === MAX_VALUE) {
-			throw new Error(`증가 최대치는 ${MAX_VALUE}입니다.`);
-		} else {
-			errorTextContainer.textContent = "";
-			numberInput.value = inputValue + 1;
+			input.type = "text";
+			input.value = 200;
+			input.className = "number-input";
+
+			return input;
+		},
+
+		buildNumberUpButton: () => {
+			const button = document.createElement("button");
+			const icon = document.createElement("i");
+
+			button.className = "button spinbox-btn number-up-btn";
+			button.dataset.buttonType = "up";
+			icon.className = "fa fa-caret-up fa-3x";
+
+			button.appendChild(icon);
+
+			return button;
+		},
+
+		buildNumberDownButton: () => {
+			const button = document.createElement("button");
+			const icon = document.createElement("i");
+
+			button.className = "button spinbox-btn number-down-btn";
+			button.dataset.buttonType = "down";
+			icon.className = "fa fa-caret-down fa-3x";
+
+			button.appendChild(icon);
+
+			return button;
 		}
-	} catch (e) {
-		errorTextContainer.textContent = e.message;
-	}
+	};
+
+	this.numberInput = spinboxBuildFuncs.buildNumberInput();
+	this.numberUpButton = spinboxBuildFuncs.buildNumberUpButton();
+	this.numberDownButton = spinboxBuildFuncs.buildNumberDownButton();
+
+	this.getMinValue = () => minValue;
+	this.getMaxValue = () => maxValue;
+	this.getHoldDelay = () => holdDelay;
+	this.getSpinInterval = () => spinInterval;
+
+	this.holdStarter = null;
+	this.holdActive = false;
+	this.spinIntervalId = null;
+	this.activeButtonType = null;
 }
 
-// 감소버튼 클릭시 -1, 최소치는 MIN_VALUE.
-function numberDown() {
-	try {
-		const inputValue = Number(numberInput.value);
+Spinbox.prototype.init = function() {
+	const inputWrapper = getWrapperAround("spinbox-input-wrapper");
+	const buttonWrapper = getWrapperAround("spinbox-btn-wrapper");
+	const spinboxWrapper = getWrapperAround("spinbox-wrapper");
 
-		if (inputValue === MIN_VALUE) {
-			throw new Error(`감소 최소치는 ${MIN_VALUE}입니다.`);
-		} else {
-			errorTextContainer.textContent = "";
-			numberInput.value = inputValue - 1;
-		}
-	} catch (e) {
-		errorTextContainer.textContent = e.message;
-	}
-}
+	inputWrapper.appendChild(this.numberInput);
+	buttonWrapper.appendChild(this.numberUpButton);
+	buttonWrapper.appendChild(this.numberDownButton);
 
-// 사용자가 값을 입력한 후 blut시 숫자외의 글자는 모두 지워짐.
-function leaveNumberOnly() {
-	const number = Number(numberInput.value.replace(/\D/g, ""));
+	spinboxWrapper.appendChild(inputWrapper);
+	spinboxWrapper.appendChild(buttonWrapper);
 
-	numberInput.value = number;
-}
+	root.appendChild(spinboxWrapper);
 
-// 입력한 숫자(혹은 추출 후의 숫자)는 MIN_VALUE ~ MAX_VALUE범위에 있어야 한다.
-// 범위를 벗어난다면, 최소 MIN_VALUE, 최대 MAX_VALUE으로 autoreplace.
-function setNumberIntoBoundary() {
-	const number = Number(numberInput.value);
-	const isSmallerThanMin = number < MIN_VALUE;
-	const isBiggerThanMax = number > MAX_VALUE;
+	this.addListeners();
+};
+
+Spinbox.prototype.addListeners = function() {
+	this.numberInput.addEventListener("blur", this.onInputBlur.bind(this));
+	this.numberUpButton.addEventListener("mousedown", this.onMouseDown.bind(this));
+	this.numberDownButton.addEventListener("mousedown", this.onMouseDown.bind(this));
+	document.addEventListener("mouseup", this.onMouseUp.bind(this));
+};
+
+Spinbox.prototype.onInputBlur = function() {
+	const numberOnlyValue = this.extractNumberOnly();
+
+	this.setNumberIntoBoundary(numberOnlyValue);
+};
+
+Spinbox.prototype.extractNumberOnly = function() {
+	return Number(this.numberInput.value.replace(/\D/g, ""));
+};
+
+Spinbox.prototype.setNumberIntoBoundary = function(number) {
+	const minValue = this.getMinValue();
+	const maxValue = this.getMaxValue();
+	const isSmallerThanMin = number < minValue;
+	const isBiggerThanMax = number > maxValue;
 
 	if (isSmallerThanMin || isBiggerThanMax) {
-		numberInput.value = isSmallerThanMin ? MIN_VALUE : MAX_VALUE;
+		this.numberInput.value = isSmallerThanMin ? minValue : maxValue;
 	} else {
-		numberInput.value = number;
+		this.numberInput.value = number;
 	}
-}
+};
 
-// 클릭한 버튼타입에 따라 수행될 동작 판단.
-function spin(buttonType) {
-	buttonType === "up" ? numberUp() : numberDown();
-}
+Spinbox.prototype.onMouseDown = function(e) {
+	const buttonType = e.currentTarget.dataset.buttonType;
 
-// 누르고있으면 SPIN_INTERVAL에 따라 계속 해당동작(spin)이 수행됨.
-function keepSpinning(buttonType) {
-	spinIntervalId = setInterval(() => {
-		spin(buttonType);
-	}, SPIN_INTERVAL);
-}
-
-// 사용자가 버튼을 계속 누르고 있는지 판단해서, 계속 누르고있으면 keepSpinning 수행.
-function isHold(event) {
-	const buttonType = event.currentTarget.dataset.buttonType;
-
-	activeButtonType = buttonType;
-	holdStarter = null;
-	holdStarter = setTimeout(() => {
+	this.activeButtonType = buttonType;
+	this.holdStarter = setTimeout(() => {
 		// 계속 누르고 있는 상태.
-		keepSpinning(buttonType);
-		holdStarter = null;
-		holdActive = true;
-	}, HOLD_DELAY);
-}
+		this.keepSpinning(buttonType);
+		this.holdStarter = null;
+		this.holdActive = true;
+	}, this.getHoldDelay());
+};
 
-// 버튼에서 mouseup하는 순간에 꾹누르고있었는지, 바로뗐는지(클릭) 판단해서, 클릭했으면 클릭수행. 쭉 누른상태였으면 이미 수행된 keepSpinning interval만 release.
-function releaseButton() {
-	const buttonType = activeButtonType;
-
-	if (holdStarter) {
-		// HOLD_DELAY보다 빨리 뗐을때(클릭)
-		clearTimeout(holdStarter);
-		spin(buttonType);
-	} else if (holdActive) {
-		clearInterval(spinIntervalId);
-		holdActive = false;
+Spinbox.prototype.onMouseUp = function(e) {
+	if (this.holdStarter) {
+		// holdDelay보다 빨리 뗐을때(클릭)
+		clearTimeout(this.holdStarter);
+		this.spin(this.activeButtonType);
+		this.holdStarter = null;
+	} else if (this.holdActive) {
+		clearInterval(this.spinIntervalId);
+		this.holdActive = false;
 	}
-}
+};
 
+Spinbox.prototype.keepSpinning = function(buttonType) {
+	this.spinIntervalId = setInterval(() => {
+		this.spin(buttonType);
+	}, this.getSpinInterval());
+};
 
-/**
- * Event Bindings
- */
-// 사용자가 값을 입력한 후 blur시 숫자 외 글자는 모두 지워짐
-numberInput.addEventListener("blur", leaveNumberOnly);
-// 입력한 숫자가 100~300 범위를 벗어나면, blur시 100미만은 100으로, 300초과는 300으로 설정
-numberInput.addEventListener("blur", setNumberIntoBoundary);
-// 계속 누르고있을때 최초에 누른 시점에 0.5초 후부터 0.1초마다 1씩 증감
-numberUpBtn.addEventListener("mousedown", isHold);
-numberDownBtn.addEventListener("mousedown", isHold);
-document.addEventListener("mouseup", releaseButton);
+Spinbox.prototype.spin = function(buttonType) {
+	buttonType === "up" ? this.numberUp() : this.numberDown();
+};
+
+Spinbox.prototype.numberUp = function() {
+	try {
+		const maxValue = this.getMaxValue();
+		const inputValue = Number(this.numberInput.value);
+
+		if (inputValue === maxValue) {
+			throw new Error(`증가 최대치는 ${maxValue}입니다.`);
+		} else {
+			errorTextContainer.textContent = "";
+			this.numberInput.value = inputValue + 1;
+		}
+	} catch (e) {
+		errorTextContainer.textContent = e.message;
+	}
+};
+
+Spinbox.prototype.numberDown = function() {
+	try {
+		const minValue = this.getMinValue();
+		const inputValue = Number(this.numberInput.value);
+
+		if (inputValue === minValue) {
+			throw new Error(`감소 최소치는 ${minValue}입니다.`);
+		} else {
+			errorTextContainer.textContent = "";
+			this.numberInput.value = inputValue - 1;
+		}
+	} catch (e) {
+		errorTextContainer.textContent = e.message;
+	}
+};
+
+const spinbox = new Spinbox();
+
+spinbox.init();
