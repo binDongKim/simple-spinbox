@@ -83,7 +83,6 @@ Spinbox.prototype.addListeners = function() {
 	this.numberInput.addEventListener("blur", this.onInputBlur.bind(this));
 	this.numberUpButton.addEventListener("mousedown", this.onMouseDown.bind(this));
 	this.numberDownButton.addEventListener("mousedown", this.onMouseDown.bind(this));
-	// document.addEventListener("mousedown", this.isHold.bind(this));
 	document.addEventListener("mouseup", this.onMouseUp.bind(this));
 };
 
