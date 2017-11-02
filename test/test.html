@@ -4,25 +4,17 @@
     <title>Mocha Tests</title>
     <link rel="stylesheet" href="../node_modules/mocha/mocha.css">
 	<script src="https://use.fontawesome.com/af9edb30db.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>"
   </head>
   <body>
     <div id="mocha"></div>
-	<div class="container" style="display:none;">
-		<div class="spinbox">
-			<div class="spinbox-input-wrapper">
-				<input type="text" name="numberInput" value="200" class="number-input" id="numberInput" />
-			</div>
-			<div class="spinbox-btn-wrapper">
-				<button class="button spinbox-btn number-up-btn" id="numberUpBtn" data-button-type="up"><i class="fa fa-caret-up fa-3x"></i></button>
-				<button class="button spinbox-btn number-down-btn" id="numberDownBtn" data-button-type="down"><i class="fa fa-caret-down fa-3x"></i></button>
-			</div>
-			<div class="error-text-wrapper">
-				<p class="error-text" id="errorText">
-				</p>
-			</div>
+	<div class="container" id="root" style="display:none;">
+		<div class="error-text-wrapper">
+			<p class="error-text" id="errorText">
+			</p>
 		</div>
 	</div>
-	<script src="../js/spinbox.js"></script>
+	<script src="../js/spinboxFactory.js"></script>
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../node_modules/chai/chai.js"></script>
     <script>mocha.setup('bdd')</script>
@@ -30,67 +22,80 @@
     <!-- load code you want to test here -->
 	<script>
 		describe("Spinbox Test Cases", () => {
-			describe("증가/감소 버튼 기능", () => {
-				let input;
+			const numberInput = document.querySelector(".number-input");
+			const numberUpButton = document.querySelector(".number-up-btn");
+			const numberDownButton = document.querySelector(".number-down-btn");
 
+			describe("증가/감소 버튼 기능", () => {
 				beforeEach(() => {
-					input = document.createElement("input");
+					numberInput.value = 200;
 				});
 
 				it("증가버튼 클릭시 +1", () => {
-					const inputValue = input.value = 200;
+					const numberInputValue = numberInput.value;
 
-					numberUp(input);
-					chai.assert.strictEqual(Number(input.value), Number(inputValue) + 1);
+					numberUpButton.dispatchEvent(new Event("mousedown"));
+					document.dispatchEvent(new Event("mouseup"));
+
+					chai.assert.strictEqual(Number(numberInput.value), Number(numberInputValue) + 1);
 				});
 
 				it('증가 최대치는 300', () => {
-					const inputValue = input.value = MAX_VALUE;
+					const MAX_VALUE = spinbox.getMaxValue();
+					const inputValue = numberInput.value = MAX_VALUE;
 
-					numberUp(input);
-					chai.assert.strictEqual(Number(input.value), Number(inputValue));
+					numberUpButton.dispatchEvent(new Event("mousedown"));
+					document.dispatchEvent(new Event("mouseup"));
+
+					chai.assert.strictEqual(Number(numberInput.value), Number(inputValue));
 				});
 
 				it("감소버튼 클릭시 -1", () => {
-					const inputValue = input.value = 200;
+					const numberInputValue = numberInput.value;
 
-					numberDown(input);
-					chai.assert.strictEqual(Number(input.value), Number(inputValue) - 1);
+					numberDownButton.dispatchEvent(new Event("mousedown"));
+					document.dispatchEvent(new Event("mouseup"));
+
+					chai.assert.strictEqual(Number(numberInput.value), Number(numberInputValue) - 1);
 				});
 
 				it("감소 최소치는 100", () => {
-					const inputValue = input.value = MIN_VALUE;
+					const MIN_VALUE = spinbox.getMinValue();
+					const inputValue = numberInput.value = MIN_VALUE;
 
-					numberDown(input);
-					chai.assert.strictEqual(Number(input.value), Number(inputValue));
+					numberDownButton.dispatchEvent(new Event("mousedown"));
+					document.dispatchEvent(new Event("mouseup"));
+
+					chai.assert.strictEqual(Number(numberInput.value), Number(inputValue));
 				});
-
 			});
 
 			describe("사용자 숫자 입력 기능", () => {
-				let input;
-
 				beforeEach(() => {
-					input = document.createElement("input");
+					numberInput.value = 200;
 				});
 
 				it("사용자가 값을 입력한 후 blur시 숫자 외 글자는 모두 지워짐", () => {
-					const inputValue = input.value = "a1b2c3";
+					const inputValue = "235abc";
 
-					leaveNumberOnly(input);
-					chai.assert.strictEqual(Number(input.value), Number(inputValue.replace(/\D/g, "")));
+					numberInput.value = inputValue;
+					numberInput.dispatchEvent(new Event("blur"));
+
+					chai.assert.strictEqual(Number(numberInput.value), Number(inputValue.replace(/\D/g, "")));
 				});
 
 				it("사용자가 입력한 숫자가 100~300 범위를 벗어나면, blur시 100미만은 100으로, 300초과는 300으로 설정", () => {
+					const MIN_VALUE = spinbox.getMinValue();
+					const MAX_VALUE = spinbox.getMaxValue();
 					const smallerThanMin = MIN_VALUE - 1;
 					const biggerThanMax = MAX_VALUE + 1;
 					const userValueList = [smallerThanMin, 150, biggerThanMax];
 
 					for (let i = 0, length = userValueList.length; i < length; i++) {
-						input.value = userValueList[i];
+						numberInput.value = userValueList[i];
+						numberInput.dispatchEvent(new Event("blur"));
 
-						setNumberIntoBoundary(input);
-						chai.assert.isTrue(input.value >= MIN_VALUE && input.value <= MAX_VALUE);
+						chai.assert.isTrue(numberInput.value >= MIN_VALUE && numberInput.value <= MAX_VALUE);
 					}
 				});
 			});
