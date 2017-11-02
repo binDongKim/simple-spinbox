@@ -80,33 +80,33 @@ Spinbox.prototype.init = function() {
 };
 
 Spinbox.prototype.addListeners = function() {
-	this.numberInput.addEventListener("blur", this.leaveNumberOnly);
-	this.numberInput.addEventListener("blur", this.setNumberIntoBoundary.bind(this));
+	this.numberInput.addEventListener("blur", this.onInputBlur.bind(this));
 	// this.numberUpButton.addEventListener("mousedown", this.isHold.bind(this));
 	// this.numberDownButton.addEventListener("mousedown", this.isHold.bind(this));
 	document.addEventListener("mousedown", this.isHold.bind(this));
 	document.addEventListener("mouseup", this.stopSpinning.bind(this));
 };
 
-Spinbox.prototype.leaveNumberOnly = function(e) {
-	const targetElement = e.target;
-	const number = Number(targetElement.value.replace(/\D/g, ""));
+Spinbox.prototype.onInputBlur = function() {
+	const numberOnlyValue = this.extractNumberOnly();
 
-	targetElement.value = number;
+	this.setNumberIntoBoundary(numberOnlyValue);
 };
 
-Spinbox.prototype.setNumberIntoBoundary = function(e) {
-	const targetElement = e.target;
-	const number = Number(targetElement.value);
+Spinbox.prototype.extractNumberOnly = function() {
+	return Number(this.numberInput.value.replace(/\D/g, ""));
+};
+
+Spinbox.prototype.setNumberIntoBoundary = function(number) {
 	const minValue = this.getMinValue();
 	const maxValue = this.getMaxValue();
 	const isSmallerThanMin = number < minValue;
 	const isBiggerThanMax = number > maxValue;
 
 	if (isSmallerThanMin || isBiggerThanMax) {
-		targetElement.value = isSmallerThanMin ? minValue : maxValue;
+		this.numberInput.value = isSmallerThanMin ? minValue : maxValue;
 	} else {
-		targetElement.value = number;
+		this.numberInput.value = number;
 	}
 };
 
